@@ -5,7 +5,7 @@
 #include "list.hpp" 
 
 #define NUMOFT 2 //количество потоков
-#define SIZE 2 //размер списка
+#define SIZE 3 //размер списка
 
 static int num_zeroes = 0;
 static int num_ones = 0;
@@ -25,25 +25,20 @@ void* Count_bits(void* args) { //функция считает количесв�
 		Node *temp = ((Args*)args)->lst->Head;
 		size_t size_of_value = CHAR_BIT * sizeof temp->x;
 		while (temp != NULL) {
-			cout << "1 -- " << temp->x << endl;
 			++iterations;
 			for(size_t i = 0; i < size_of_value; ++i)
 				if ((temp->x & (1 << i)) == 0)
 					++num_zeroes;
-			for (int i = 0; i < 100000000; ++i) { int a = 999999999, b = 231242; a *= b;}
 			temp = ((Args*)args)->lst->New_Head();
-
 		}
 	} else { //если b = false, то выполняется поиск 1 битов с конца списка
 		Node *temp = ((Args*)args)->lst->Tail;
 		size_t size_of_value = CHAR_BIT * sizeof temp->x;
 		while (temp != NULL) {
-			cout << "0 -- " << temp->x << endl;
 			++iterations;
 			for(size_t i = 0; i < size_of_value; ++i)	
 				if (temp->x & (1 << i))
 					++num_ones;
-			for (int i = 0; i < 100000000; ++i) { int a = 999999999, b = 231242; a *= b;}
 			temp = ((Args*)args)->lst->New_Tail();
 			
 		}
@@ -59,14 +54,13 @@ int main () {
 	srand( time(0) );
 	List lst;
 
-	rand_list(SIZE, lst);
+	int size = 0;
+	cin >> size;
+
+	rand_list(size, lst);
 	
 	Args args[NUMOFT];
 	pthread_t threads[NUMOFT];
-
-	cout << "This is the LIST: \n" << endl;
-	lst.Show(1);
-	cout << "\nPROGRAM: \n" << endl;
 
 	for(int i = 0; i < NUMOFT; i++){
 		args[i].lst = &lst;
