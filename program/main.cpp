@@ -5,11 +5,9 @@
 #include "list.hpp" 
 
 #define NUMOFT 2 //количество потоков
-#define SIZE 3 //размер списка
 
 static int num_zeroes = 0;
 static int num_ones = 0;
-static int iterations = 0;
  
 void rand_list(size_t const& n, List &lst) { //генерация списка со случайными значениями
 	
@@ -25,7 +23,6 @@ void* Count_bits(void* args) { //функция считает количесв�
 		Node *temp = ((Args*)args)->lst->Head;
 		size_t size_of_value = CHAR_BIT * sizeof temp->x;
 		while (temp != NULL) {
-			++iterations;
 			for(size_t i = 0; i < size_of_value; ++i)
 				if ((temp->x & (1 << i)) == 0)
 					++num_zeroes;
@@ -35,12 +32,10 @@ void* Count_bits(void* args) { //функция считает количесв�
 		Node *temp = ((Args*)args)->lst->Tail;
 		size_t size_of_value = CHAR_BIT * sizeof temp->x;
 		while (temp != NULL) {
-			++iterations;
 			for(size_t i = 0; i < size_of_value; ++i)	
 				if (temp->x & (1 << i))
 					++num_ones;
 			temp = ((Args*)args)->lst->New_Tail();
-			
 		}
 	}
 
@@ -55,6 +50,7 @@ int main () {
 	List lst;
 
 	int size = 0;
+	cout << "List size: " << endl;
 	cin >> size;
 
 	rand_list(size, lst);
@@ -78,14 +74,12 @@ int main () {
 		}
 	}
 
-
 	for (uint32_t i = 0; i < NUMOFT; i++) {
 		if (pthread_join(threads[i], NULL) != 0) {
 			perror("pthread_join");
 			exit(1);
 		}
 	}
-	cout << "\nIterations: " << iterations << "\n" << endl;
 	cout << "0 bits: " << num_zeroes << endl;
 	cout << "1 bits: " << num_ones << endl;
 
