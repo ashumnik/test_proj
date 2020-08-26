@@ -66,30 +66,28 @@ void List::Show(bool asc) { //вывод списка
 
 Node* List::New_Head() { //сдвигает начало на один элемент
 	Node *temp = Head;
-	if (temp->Next == Tail || temp == Tail) {return 0;} //костыль (не знаю как по-другому) (чтобы разные потоки не обрабатывали один элемент)
+	if (temp->Next == Tail) {return 0;} //костыль (не знаю как по-другому) (чтобы разные потоки не обрабатывали один элемент)
 	if (temp != NULL && temp->Next != NULL) {
 		temp = temp->Next;
 		delete Head;
 		temp->Prev = NULL;
 		Head = temp;
 		return temp;
-		if (temp == Tail) {return 0;} //костыль
 	} else if (Tail == Head) {
 		this->~List();			
 	}
 	return 0;
-}	
+}
 
 Node* List::New_Tail() { //сдвигает конец на один элемент
 	Node *temp = Tail;
-	if (temp->Prev == Head || temp == Head) {return 0;} //костыль
+	if (temp->Prev == Head || temp == Head || temp->Prev->Prev == Head) {return 0;} //костыль
 	if (temp != NULL && temp->Prev != NULL) {
 		temp = temp->Prev;
 		delete Tail;
 		temp->Next = NULL;
 		Tail = temp;
 		return temp;
-		if (temp->Prev == Head || temp == Head) {return 0;} //костыль
 	} else if (Tail == Head) {
 		return 0;	
 	}
