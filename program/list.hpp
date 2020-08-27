@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unistd.h>
 #include "args.hpp"
 
 using namespace std;
@@ -84,6 +85,7 @@ Node* List::New_Tail() { //сдвигает конец на один элеме�
 	if (temp->Prev == Head || temp == Head || temp->Prev->Prev == Head) {return 0;} //костыль
 	if (temp != NULL && temp->Prev != NULL) {
 		temp = temp->Prev;
+        sleep(1);
 		delete Tail;
 		temp->Next = NULL;
 		Tail = temp;
