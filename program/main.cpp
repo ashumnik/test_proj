@@ -23,18 +23,26 @@ void* Count_bits(void* args) { //функция считает количесв�
 		Node *temp = ((Args*)args)->lst->Head;
 		size_t size_of_value = CHAR_BIT * sizeof temp->x;
 		while (temp != NULL) {
+            int zeroes = 0;
+            printf("counting zeroes in element %p\n", temp);
 			for(size_t i = 0; i < size_of_value; ++i)
 				if ((temp->x & (1 << i)) == 0)
-					++num_zeroes;
+					++zeroes;
+            printf("got %d zeroes\n", zeroes);
+            num_zeroes += zeroes;
 			temp = ((Args*)args)->lst->New_Head();
 		}
 	} else { //если b = false, то выполняется поиск 1 битов с конца списка
 		Node *temp = ((Args*)args)->lst->Tail;
 		size_t size_of_value = CHAR_BIT * sizeof temp->x;
 		while (temp != NULL) {
+            int ones = 0;
+            printf("counting ones in element %p\n", temp);
 			for(size_t i = 0; i < size_of_value; ++i)	
 				if (temp->x & (1 << i))
-					++num_ones;
+                    ones++;
+            printf("got %d ones\n", ones);
+            num_ones += ones;
 			temp = ((Args*)args)->lst->New_Tail();
 		}
 	}
