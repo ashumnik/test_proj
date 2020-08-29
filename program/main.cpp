@@ -6,11 +6,15 @@
 
 #define NUMOFT 2 //количество потоков
 
+pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+
 static int num_zeroes = 0;
 static int num_ones = 0;
  
+static Node* temp1 = 0;
+static Node* temp2 = 0; 
+
 void rand_list(size_t const& n, List &lst) { //генерация списка со случайными значениями
-	
 	for (int i = 0; i != n; i++)
 		lst.Add(rand());
 
@@ -19,24 +23,30 @@ void rand_list(size_t const& n, List &lst) { //генерация списка �
 void* Count_bits(void* args) { //функция считает количесво 1/0 битов
 
 
-	if (((Args*)args)->b) { //если b = true, то выполняется поиск 0 битов с начала списка
-		Node *temp = ((Args*)args)->lst->Head;
-		size_t size_of_value = CHAR_BIT * sizeof temp->x;
-		while (temp != NULL) {
+	if (((Args*)args)->b) { //если b = true, то выполняется поиск 0 битов с начала списка	
+		Node *temp1 = ((Args*)args)->lst->Head;
+		size_t size_of_value = CHAR_BIT * sizeof temp1->x;
+		while (temp1 != NULL) {
 			for(size_t i = 0; i < size_of_value; ++i)
-				if ((temp->x & (1 << i)) == 0)
+				if ((temp1->x & (1 << i)) == 0)
 					++num_zeroes;
-			temp = ((Args*)args)->lst->New_Head();
+			pthread_mutex_lock(&mut);
+			temp1 = ((Args*)args)->lst->New_Head();
+			pthread_mutex_unlock(&mut);
 		}
+		
 	} else { //если b = false, то выполняется поиск 1 битов с конца списка
-		Node *temp = ((Args*)args)->lst->Tail;
-		size_t size_of_value = CHAR_BIT * sizeof temp->x;
-		while (temp != NULL) {
+		Node *temp2 = ((Args*)args)->lst->Tail;
+		size_t size_of_value = CHAR_BIT * sizeof temp2->x;
+		while (temp2 != NULL) {
 			for(size_t i = 0; i < size_of_value; ++i)	
-				if (temp->x & (1 << i))
+				if (temp2->x & (1 << i))
 					++num_ones;
-			temp = ((Args*)args)->lst->New_Tail();
+			pthread_mutex_lock(&mut);
+			temp2 = ((Args*)args)->lst->New_Tail();
+			pthread_mutex_unlock(&mut);
 		}
+		
 	}
 
 	return 0;
@@ -80,6 +90,7 @@ int main () {
 			exit(1);
 		}
 	}
+	lst.~List();
 	cout << "0 bits: " << num_zeroes << endl;
 	cout << "1 bits: " << num_ones << endl;
 
