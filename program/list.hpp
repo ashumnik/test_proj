@@ -6,6 +6,7 @@ using namespace std;
 struct Node { //элемент списка
 	int x;
 	Node *Next, *Prev;
+
 };
  
 class List{ //класс для работы со списком
@@ -72,8 +73,12 @@ Node* List::New_Head() { //сдвигает начало на один элем�
 		temp->Prev = NULL;
 		Head = temp;
 		return Head;		
+	} else {
+		Head != Tail ? Tail->Prev = NULL : Tail = NULL;
+		delete Head;
+		Head = NULL;
 	}
-	return 0;
+	return NULL;
 }
 
 Node* List::New_Tail() { //сдвигает конец на один элемент
@@ -84,6 +89,8 @@ Node* List::New_Tail() { //сдвигает конец на один элеме�
 		temp->Next = NULL;
 		Tail = temp;
 		return Tail;	
-	}	
-	return 0;
+	} else if (Head != Tail) {
+		delete Tail;
+	}
+	return NULL;
 }
