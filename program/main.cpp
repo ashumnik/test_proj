@@ -33,8 +33,12 @@ void* Count_bits(void* args) { //функция считает количесв�
 		}
 	
 	} else { //если b = false, то выполняется поиск 1 битов с конца списка
-		Node *temp = ((Args*)args)->lst->Tail;
-		size_t size_of_value = CHAR_BIT * sizeof temp->x;
+		Node *temp = 0;	
+		size_t size_of_value = 0;	
+		if (((Args*)args)->lst->Head != ((Args*)args)->lst->Tail) {
+			temp = ((Args*)args)->lst->Tail;
+			size_of_value = CHAR_BIT * sizeof temp->x;
+		}
 		while (temp != NULL) {
 			for(size_t i = 0; i < size_of_value; ++i)	
 				if (temp->x & (1 << i))
