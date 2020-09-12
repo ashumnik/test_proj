@@ -2,58 +2,51 @@
 #include <climits>
 #include <pthread.h>
 
-#include "list.hpp" 
+#include "list.h" 
 
 #define NUMOFT 2 //количество потоков
 
 pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
 
-static int num_zeroes = 0;
-static int num_ones = 0;
+static int NumZeroes = 0;
+static int NumOnes = 0;
 
-void rand_list(size_t const& n, List &lst) { //генерация списка со случайными значениями
-	for (int i = 0; i != n; i++)
-		lst.Add(rand());
-
-}
-
-void* Count_bits(void* args) { //функция считает количесво 1/0 битов
-
-
-	if (((Args*)args)->b) { //если b = true, то выполняется поиск 0 битов с начала списка	
-		Node *temp = ((Args*)args)->lst->Head;
-		size_t size_of_value = CHAR_BIT * sizeof temp->x;
-		while (temp != NULL) {
+void* CountZeroes (List* lst) {
+	int x = 0;
+	size_t size_of_value = CHAR_BIT * sizeof x;
+	do {
+		if (x) {
 			for(size_t i = 0; i < size_of_value; ++i)
-				if ((temp->x & (1 << i)) == 0)
-					++num_zeroes;
-			pthread_mutex_lock(&mut);
-			temp = ((Args*)args)->lst->New_Head();
-			pthread_mutex_unlock(&mut);
+				if ((x & (1 << i)) == 0)
+					++NumZeroes;
 		}
-	
-	} else { //если b = false, то выполняется поиск 1 битов с конца списка
-		Node *temp = 0;	
-		size_t size_of_value = 0;	
-		if (((Args*)args)->lst->Head != ((Args*)args)->lst->Tail) {
-			temp = ((Args*)args)->lst->Tail;
-			size_of_value = CHAR_BIT * sizeof temp->x;
-		}
-		while (temp != NULL) {
-			for(size_t i = 0; i < size_of_value; ++i)	
-				if (temp->x & (1 << i))
-					++num_ones;
-			pthread_mutex_lock(&mut);
-			temp = ((Args*)args)->lst->New_Tail();
-			pthread_mutex_unlock(&mut);
-		}	
-	}
-
+		pthread_mutex_lock(&mut);
+		x = lst->NewHead();
+		pthread_mutex_unlock(&mut);
+	} while (x) ;
 	return 0;
 }
 
+void* CountOnes (List* lst) {
+	int x = 0;	
+	size_t size_of_value = CHAR_BIT * sizeof x;	
+	do {
+		if (x) {
+			for(size_t i = 0; i < size_of_value; ++i)	
+				if (x & (1 << i))
+					++NumOnes;
+		}	
+		pthread_mutex_lock(&mut);
+		x = lst->NewTail();
+		pthread_mutex_unlock(&mut);		
+	} while (x);
+	return 0;
+}
 
-
+void* CountBits(void* args) {
+	((Args*)args)->fcnPtr(((Args*)args)->lst);
+	return 0;
+}
 
 int main () {
 	srand( time(0) );
@@ -63,7 +56,7 @@ int main () {
 	cout << "List size: " << endl;
 	cin >> size;
 
-	rand_list(size, lst);
+	lst.Add(size);
 
 	Args args[NUMOFT];
 	pthread_t threads[NUMOFT];
@@ -71,14 +64,14 @@ int main () {
 	for(int i = 0; i < NUMOFT; i++){
 		args[i].lst = &lst;
 		if (i == 0) {
-			args[i].b = 1;
+			args[i].fcnPtr = CountZeroes;
 		} else {
-			args[i].b = 0;
+			args[i].fcnPtr = CountOnes;
 		}
 	}
 	
 	for (uint32_t i = 0; i < NUMOFT; i++) {
-		if (pthread_create(&threads[i], NULL, Count_bits, (void *)&args[i])) {
+		if (pthread_create(&threads[i], NULL, CountBits, (void *)&args[i])) {
 			printf("Error: pthread_create failed!\n");
 			return 1;
 		}
@@ -91,8 +84,8 @@ int main () {
 		}
 	}
 
-	cout << "0 bits: " << num_zeroes << endl;
-	cout << "1 bits: " << num_ones << endl;
+	cout << "0 bits: " << NumZeroes << endl;
+	cout << "1 bits: " << NumOnes << endl;
 
 	return 0;
 }
